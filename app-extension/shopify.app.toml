@@ -1,0 +1,19 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "f8e9dc9f39b22be28e87cdb2c591b0a6"
+name = "Count Down Timer"
+handle = "count-down-timer-4"
+application_url = "https://mastodon-eminent-aphid.ngrok-free.app/"
+embedded = true
+
+[build]
+dev_store_url = "ostad-app-dev.myshopify.com"
+
+[auth]
+redirect_urls = [ "https://mastodon-eminent-aphid.ngrok-free.app/authenticate" ]
+
+[webhooks]
+api_version = "2024-01"
+
+[pos]
+embedded = false

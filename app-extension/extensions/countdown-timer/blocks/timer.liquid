@@ -1,0 +1,196 @@
+
+{% liquid 
+    assign countdown_end_time = block.settings.countdown_end_time | strip
+    assign countdown_border_color = block.settings.countdown_border_color
+    assign countdown_progress_color = block.settings.countdown_progress_color
+    assign countdown_text_color = block.settings.countdown_text_color
+    assign countdown_end_time = block.settings.countdown_end_time | strip
+%}
+
+<style>
+  :root{
+    --countdown-progress-days: 0deg;
+    --countdown-progress-hours: 0deg;
+    --countdown-progress-minutes: 0deg;
+    --countdown-progress-seconds: 0deg;
+    --countdown-timer-border-color: {{ countdown_border_color }};
+    --countdown-timer-progress-color: {{ countdown_progress_color }};
+    --countdown-timer-text-color: {{ countdown_text_color }};
+  }
+
+  .countdown-timer-app{
+    margin-block: 20px;
+  }
+  .countdown-timer {
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    grid-column-gap: 17px;
+  }
+  .countdown-timer-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+  }
+  .countdown-timer-progress {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    color: black;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .countdown-timer-progress::before{
+    content: "";
+    position: absolute;
+    width: 25px;
+    height: 25px;
+    top: 3px;
+    left: 3px;
+    background: {{ section_background }};
+    border-radius: 50%;
+  }
+  .countdown-timer-value{
+    position: relative;
+    font-size: 14px;
+    line-height: 1;
+    color: var(--countdown-timer-text-color);
+    font-weight: bold;
+  }
+  .countdown-timer-text{
+    position: relative;
+    font-size: 14px;
+    text-align: center;
+    color: var(--countdown-timer-text-color);
+  }
+  .countdown-timer-progress.days{
+    background: conic-gradient(var(--countdown-timer-progress-color) var(--countdown-progress-days), var(--countdown-timer-border-color) 0deg);
+  }
+  .countdown-timer-progress.hours{
+    background: conic-gradient(var(--countdown-timer-progress-color) var(--countdown-progress-hours), var(--countdown-timer-border-color) 0deg);
+  }
+  .countdown-timer-progress.minutes{
+    background: conic-gradient(var(--countdown-timer-progress-color) var(--countdown-progress-minutes), var(--countdown-timer-border-color) 0deg);
+  }
+  .countdown-timer-progress.seconds{
+    background: conic-gradient(var(--countdown-timer-progress-color) var(--countdown-progress-seconds), var(--countdown-timer-border-color) 0deg);
+  }
+
+  .countdown-timer-value.days{
+    
+  }
+</style>
+
+<div class="countdown-timer-app">
+    {% unless block.settings.title == blank %} <h3> {{ block.settings.title }} </h3> {% endunless %}
+    <div class="countdown-timer">
+        <div class="countdown-timer-item">
+            <div class="countdown-timer-progress days">
+            <span class="countdown-timer-value days">00</span>
+            </div>
+            <span class="countdown-timer-text days">Days</span>
+        </div>
+        <div class="countdown-timer-item">
+            <div class="countdown-timer-progress hours">
+            <span class="countdown-timer-value hours">00</span>
+            </div>
+            <span class="countdown-timer-text hours">Hours</span>
+        </div>
+        <div class="countdown-timer-item">
+            <div class="countdown-timer-progress minutes">
+            <span class="countdown-timer-value minutes">00</span>
+            </div>
+            <span class="countdown-timer-text minutes">Minutes</span>
+        </div>
+        <div class="countdown-timer-item">
+            <div class="countdown-timer-progress seconds">
+            <span class="countdown-timer-value seconds">00</span>
+            </div>
+            <span class="countdown-timer-text seconds">Seconds</span>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+  document.addEventListener("DOMContentLoaded", (event) => {
+    var root = document.documentElement;
+    const targetDate = new Date('{{ countdown_end_time }}').getTime();
+    const countdownInterval = setInterval(() => {
+      const now = new Date().getTime();
+
+      const timeDifference = targetDate - now;
+
+      const days = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
+
+      root.style.setProperty('--countdown-progress-days', `${(360/100) * days}deg`);
+      root.style.setProperty('--countdown-progress-hours', `${(360/24) * hours}deg`);
+      root.style.setProperty('--countdown-progress-minutes', `${(360/60) * minutes}deg`);
+      root.style.setProperty('--countdown-progress-seconds', `${(360/60) * seconds}deg`);
+
+      document.querySelector('.countdown-timer-value.days').textContent = days;
+      document.querySelector('.countdown-timer-value.hours').textContent = hours;
+      document.querySelector('.countdown-timer-value.minutes').textContent = minutes;
+      document.querySelector('.countdown-timer-value.seconds').textContent = seconds;
+
+      // Check if the countdown has expired
+      if (timeDifference < 0) {
+        clearInterval(countdownInterval);
+         //document.getElementById('timer').innerHTML = 'Countdown expired';
+      }
+    }, 1000);
+  });
+</script>
+
+
+{% schema %}
+{
+  "name": "Timer",
+  "target": "section",
+  "settings": [
+    { 
+        "type": "product", 
+        "id": "product", 
+        "label": "product", 
+        "autofill": true 
+    },
+    { 
+        "type": "text", 
+        "id": "title", 
+        "label": "Timer", 
+        "default": "Countdown Timer" 
+    },
+    {
+      "type": "text",
+      "id": "countdown_end_time",
+      "label": "Set Countdown End Time",
+      "default": "Mar 28, 2024 00:00:00",
+      "info": "format: `Dec 30, 2024 10:00:00`"
+    },
+    {
+      "type": "color",
+      "id": "countdown_border_color",
+      "label": "Border Color",
+      "default": "#334FB4"
+    },
+    {
+      "type": "color",
+      "id": "countdown_progress_color",
+      "label": "Progressbar Color",
+      "default": "#A6A6A5"
+    },
+    {
+      "type": "color",
+      "id": "countdown_text_color",
+      "label": "Text Color",
+      "default": "#FFFFFF"
+    }
+  ]
+}
+{% endschema %}
+
